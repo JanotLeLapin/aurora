@@ -13,8 +13,12 @@
       pkgs = (import nixpkgs { inherit system; } );
     }));
   in {
-    packages = eachSystem ({ pkgs, ... }: {
-      setup = pkgs.callPackage ./setup.nix {};
+    devShells = eachSystem ({ pkgs, ... }: {
+      default = pkgs.mkShell {
+        buildInputs = [
+          (pkgs.callPackage ./setup.nix {})
+        ];
+      };
     });
   };
 }

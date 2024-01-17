@@ -1,8 +1,8 @@
-{ stdenv
-, fetchzip
+{ fetchzip
 , fetchurl
 , openjdk19
 , unzip
+, writeScriptBin
 }: let
   server-jar = fetchurl {
     url = "https://launcher.mojang.com/v1/objects/b58b2ceb36e01bcd8dbf49c8fb66c55a9f0676cd/server.jar";
@@ -23,17 +23,11 @@
     url = "https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/java/java-decompiler-engine/${version}/java-decompiler-engine-${version}.jar";
     hash = "sha256-pVeBfdLevRtlP5R02IksfjQTe1o50+WY1A4599aiCCU=";
   };
-in stdenv.mkDerivation {
-  name = "mc-server-sources";
-  dontUnpack = true;
-  buildInputs = [ openjdk19 unzip ];
-  buildPhase = ''
-    mkdir decomp out
-    java -jar ${special-source} --in-jar ${server-jar} --out-jar deobf.jar --srg-in ${mcp}/conf/joined.srg --kill-lvt
-    java -jar ${fernflower} deobf.jar decomp
-    unzip decomp/*.jar -d out
-  '';
-  installPhase = ''
-    mv out $out
-  '';
-}
+
+  java = "${openjdk19}/bin/java";
+in writeScriptBin "aurora-setup" ''
+  mkdir -p tmp/{deobf,decomp}
+  ${java} -jar ${special-source} --in-jar ${server-jar} --out-jar tmp/deobf/server.jar --srg-in ${mcp}/conf/joined.srg --kill-lvt
+  ${java} -jar ${fernflower} tmp/deobf/server.jar tmp/decomp
+  ${unzip}/bin/unzip tmp/decomp/server.jar -d workdir
+''
