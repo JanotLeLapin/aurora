@@ -31,7 +31,7 @@ in writeScriptBin "aurora-setup" ''
   mkdir -p src/main/{java,resources}
 
   ${unzip}/bin/unzip ${server-jar} -d tmp/strip
-  rm -rf tmp/strip/{com,io,javax,org,META-INF}
+  rm -rf tmp/strip/{com/google,io,javax,org,META-INF}
   mv tmp/strip/{Log4j-*,log4j2.xml,yggdrasil_session_pubkey.der} src/main/resources
   cd tmp/strip
   ${zip}/bin/zip -r server.jar *
