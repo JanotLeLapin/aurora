@@ -16,6 +16,7 @@
     devShells = eachSystem ({ pkgs, ... }: {
       default = pkgs.mkShell {
         buildInputs = [
+          pkgs.openjdk8
           (pkgs.callPackage ./setup.nix {})
         ];
       };

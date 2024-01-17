@@ -1,2 +1,4 @@
 tmp/
-workdir/
+src/
+.gradle
+build

@@ -27,7 +27,8 @@
   java = "${openjdk19}/bin/java";
 in writeScriptBin "aurora-setup" ''
   mkdir -p tmp/{deobf,decomp}
+  mkdir -p src/main
   ${java} -jar ${special-source} --in-jar ${server-jar} --out-jar tmp/deobf/server.jar --srg-in ${mcp}/conf/joined.srg --kill-lvt
   ${java} -jar ${fernflower} tmp/deobf/server.jar tmp/decomp
-  ${unzip}/bin/unzip tmp/decomp/server.jar -d workdir
+  ${unzip}/bin/unzip tmp/decomp/server.jar -d src/main/java
 ''
