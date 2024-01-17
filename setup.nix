@@ -1,6 +1,7 @@
 { fetchzip
 , fetchurl
 , openjdk19
+, zip
 , unzip
 , writeScriptBin
 }: let
@@ -26,9 +27,17 @@
 
   java = "${openjdk19}/bin/java";
 in writeScriptBin "aurora-setup" ''
-  mkdir -p tmp/{deobf,decomp}
-  mkdir -p src/main
-  ${java} -jar ${special-source} --in-jar ${server-jar} --out-jar tmp/deobf/server.jar --srg-in ${mcp}/conf/joined.srg --kill-lvt
+  mkdir -p tmp/{strip,deobf,decomp}
+  mkdir -p src/main/{java,resources}
+
+  ${unzip}/bin/unzip ${server-jar} -d tmp/strip
+  rm -rf tmp/strip/{com,io,javax,org,META-INF}
+  mv tmp/strip/{Log4j-*,log4j2.xml,yggdrasil_session_pubkey.der} src/main/resources
+  cd tmp/strip
+  ${zip}/bin/zip -r server.jar *
+  cd ../..
+
+  ${java} -jar ${special-source} --in-jar tmp/strip/server.jar --out-jar tmp/deobf/server.jar --srg-in ${mcp}/conf/joined.srg --kill-lvt
   ${java} -jar ${fernflower} tmp/deobf/server.jar tmp/decomp
   ${unzip}/bin/unzip tmp/decomp/server.jar -d src/main/java
 ''
